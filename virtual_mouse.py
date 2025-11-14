@@ -260,3 +260,19 @@ def apply_deadzone(dx, dy, radius=DEADZONE_RADIUS):
     if abs(dx) < radius and abs(dy) < radius:
         return 0, 0
     return dx, dy
+
+# --- Right-Click Gesture ---
+RIGHT_CLICK_THRESHOLD = 30  # distance (px) between ring finger and thumb
+
+def detect_right_click(hand_landmarks, frame_w, frame_h):
+    """
+    Detects right-click by measuring pinch distance between
+    ring fingertip (landmark 16) and thumb tip (landmark 4).
+    Returns True when pinch is within threshold.
+    """
+    ring_tip  = hand_landmarks.landmark[16]
+    thumb_tip = hand_landmarks.landmark[4]
+    dist = ((ring_tip.x - thumb_tip.x) ** 2 +
+            (ring_tip.y - thumb_tip.y) ** 2) ** 0.5
+    dist_px = dist * frame_w
+    return dist_px < RIGHT_CLICK_THRESHOLD
