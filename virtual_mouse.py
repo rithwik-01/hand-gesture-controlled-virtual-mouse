@@ -276,3 +276,28 @@ def detect_right_click(hand_landmarks, frame_w, frame_h):
             (ring_tip.y - thumb_tip.y) ** 2) ** 0.5
     dist_px = dist * frame_w
     return dist_px < RIGHT_CLICK_THRESHOLD
+
+# --- Drag Detection + Gesture Cooldown ---
+import time
+
+DRAG_HOLD_FRAMES  = 8     # frames fist must be held before drag activates
+GESTURE_COOLDOWN  = 0.4   # seconds between gesture triggers to avoid repeats
+
+_last_gesture_time = 0.0
+_drag_frame_count  = 0
+
+def gesture_on_cooldown():
+    """Returns True if a gesture was triggered too recently."""
+    return (time.time() - _last_gesture_time) < GESTURE_COOLDOWN
+
+def update_drag_state(is_fist):
+    """
+    Increments drag counter when fist is detected.
+    Returns True once fist held for DRAG_HOLD_FRAMES consecutive frames.
+    """
+    global _drag_frame_count
+    if is_fist:
+        _drag_frame_count += 1
+    else:
+        _drag_frame_count = 0
+    return _drag_frame_count >= DRAG_HOLD_FRAMES
